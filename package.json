@@ -1,0 +1,21 @@
+{
+  "name": "generator-service-serverless",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node generate.js",
+    "deploy": "echo \"Add your deployment script here\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1609.0",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "mysql2": "^2.3.3",
+    "node-vault": "^0.10.2"
+  }
+}
