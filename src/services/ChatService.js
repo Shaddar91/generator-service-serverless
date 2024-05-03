@@ -7,7 +7,7 @@ exports.getChatResponse = async (options) => {
             max_tokens: 150
         }, {
             headers: {
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+                'Authorization': `Bearer ${process.env.CHATGPT_TOKEN}`
             }
         });
 
