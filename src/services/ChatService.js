@@ -1,15 +1,27 @@
-// This is a placeholder. You'll replace this with actual API call logic to ChatGPT.
-exports.getChatResponse = (options, callback) => {
-  // Simulated response
-  const response = {
-      response_id: "unique_response_id",
-      model: "gpt-4",
-      created_time: Date.now(),
-      prompt_tokens: options.prompt.length,
-      completion_tokens: 150,  // Example token count
-      total_tokens: options.prompt.length + 150,
-      finish_reason: "completed"
-  };
+const axios = require('axios');
 
-  callback(null, response);
+exports.getChatResponse = async (options) => {
+    try {
+        const response = await axios.post('https://api.openai.com/v1/engines/gpt-4/completions', {
+            prompt: options.prompt,
+            max_tokens: 150
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            }
+        });
+
+        return {
+            response_id: response.data.id,
+            model: "gpt-4",
+            created_time: Date.now(),
+            prompt_tokens: options.prompt.length,
+            completion_tokens: response.data.choices[0].tokens.length,
+            total_tokens: options.prompt.length + response.data.choices[0].tokens.length,
+            finish_reason: response.data.choices[0].finish_reason
+        };
+    } catch (error) {
+        console.error('Error getting chat response:', error);
+        throw error;
+    }
 };
