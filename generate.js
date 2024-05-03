@@ -1,69 +1,22 @@
-const axios = require('axios');
-const mysql = require('mysql2/promise');
+const AWS = require('aws-sdk');
+AWS.config.update({region: process.env.AWS_REGION});
 
-exports.handler = async (event) => {
-    const {
-        CHATGPT_TOKEN,
-        DB_HOST,
-        DB_NAME,
-        DB_PASSWORD,
-        DB_PORT,
-        DB_USER
-    } = process.env;
+const ChatService = require('./src/services/ChatService');
+const ChatResponse = require('./src/models/ChatResponse');
 
-    async function sendMessage(message) {
-        const apiUrl = 'https://api.openai.com/v1/chat/completions';
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${CHATGPT_TOKEN}`,
-        };
-        const data = {
-            model: "gpt-4",
-            messages: [{ role: "user", content: message }]
-        };
-
-        try {
-            const response = await axios.post(apiUrl, data, { headers });
-            console.log("Response from ChatGPT:", response.data);
-            return response.data;
-        } catch (error) {
-            console.error("Error interacting with ChatGPT API:", error.response ? error.response.data : error);
-            throw new Error("Failed to interact with ChatGPT API");
-        }
-    }
-
+exports.handler = async (event, context, callback) => {
     try {
-        const connection = await mysql.createConnection({
-            host: DB_HOST,
-            user: DB_USER,
-            database: DB_NAME,
-            password: DB_PASSWORD,
-            port: DB_PORT
-        });
-        console.log("Database connection successful");
-        //Test db
-        const [rows] = await connection.execute('SELECT 1 + 1 AS solution');
-        console.log("Test query successful, solution: ", rows[0].solution);
-        await connection.end();
+        // Simulated function to invoke ChatGPT and get a response
+        const chatResponse = await ChatService.getChatResponse({ prompt: "Your prompt here" });
 
-        //ChatGPT API interaction
-        const chatGPTResponse = await sendMessage(event.message || "Hello, how are you?");
-        console.log("Received response from ChatGPT:", chatGPTResponse);
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: "Database connectivity and ChatGPT interaction successful"
-            })
-        };
+        // Save the response in the database
+        await ChatResponse.saveResponse(chatResponse);
+        
+        // Log success and complete the Lambda function
+        console.log("Response saved successfully.");
+        callback(null, "Process completed successfully.");
     } catch (error) {
-        console.error("Lambda execution error:", error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                error: "Lambda function execution failed"
-            })
-        };
+        console.error("Error during process:", error);
+        callback(error);
     }
 };
-
