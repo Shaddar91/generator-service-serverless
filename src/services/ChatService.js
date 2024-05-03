@@ -14,16 +14,18 @@ exports.getChatResponse = async (options) => {
 
         console.log("Response data:", response.data); // Log the full response data
 
-        const data = response.data.choices[0];
-        return {
-            response_id: data.id || 'default_id',  // Provide a default if undefined
-            model: "gpt-4",
-            created_time: Date.now(),
-            prompt_tokens: options.prompt.length,
-            completion_tokens: data.tokens ? data.tokens.length : 0,  // Safeguard against undefined
-            total_tokens: options.prompt.length + (data.tokens ? data.tokens.length : 0),
-            finish_reason: data.finish_reason || 'unknown_reason'  // Provide a default if undefined
+        // Assuming the first choice is what you want to store
+        const choice = response.data.choices[0];
+        const videoContent = {
+            response_id: response.data.id,
+            video_title: "Generated Video Content",
+            video_content: choice.message.content, // Assuming message has a content field
+            finish_reason: choice.finish_reason
         };
+
+        console.log("Video Content Details:", videoContent);
+        return videoContent; // This would be the object to insert into your DB
+
     } catch (error) {
         console.error('Error getting chat response:', error);
         throw error;  // Ensure to throw the error to handle it appropriately in the calling function
